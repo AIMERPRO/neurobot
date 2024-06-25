@@ -1,0 +1,84 @@
+import logging
+import os
+from typing import Optional
+
+import schedule
+import time
+from datetime import datetime
+import requests
+from services.openai_service import OpenAIClient
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# env region
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+OPENAI_ASSIST_ID = os.getenv('OPENAI_ASSIST_ID')
+OPENAI_MESSAGE_TO_CALL = os.getenv('OPENAI_MESSAGE_TO_CALL')
+PROXY_URL = os.getenv('PROXY_URL')
+
+CHANNEL_NAME = os.getenv('CHANNEL_NAME')
+CHANNEL_LINK = os.getenv('CHANNEL_LINK')
+
+BOT_TOKEN = os.getenv('BOT_TOKEN')
+CHAT_ID = os.getenv('CHAT_ID')
+
+POSTING_INTERVAL = int(os.getenv('POSTING_INTERVAL', '2'))
+START_HOUR = int(os.getenv('START_HOUR', '4'))
+END_HOUR = int(os.getenv('END_HOUR', '19'))
+# end region
+
+
+def get_openai_response(client: OpenAIClient, thread_id: str) -> Optional[str]:
+    """Отправляет запрос к OPENAI и возвращает ответ."""
+    logger.info('Пытаемся получить пост')
+    try:
+        response = client.get_answer(thread_id=thread_id,
+                                     message=OPENAI_MESSAGE_TO_CALL)
+        return response
+    except Exception as e:
+        logger.error(f'Ошибка при получении поста: {e}')
+        return None
+
+
+def post_to_telegram(message: str) -> None:
+    """Отправляет пост в телеграм канал."""
+    logger.info('Отправляем пост в телеграм')
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    message = message.strip() + f"\n\n<a href='{CHANNEL_LINK}'>👉 {CHANNEL_NAME} - подписаться</a>"
+    payload = {"chat_id": CHAT_ID, "text": message, "parse_mode": "HTML"}
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status()
+        logger.info('Сообщение успешно отправлено')
+    except Exception as e:
+        logging.error(f"Ошибка при отправке сообщения: {e}")
+        logging.error(response.json())
+
+def perform_task() -> None:
+    """Запускает таск по времени."""
+    current_hour = datetime.now().hour
+    logger.info(current_hour)
+    if START_HOUR <= current_hour < END_HOUR:
+        openai_response = get_openai_response(client, thread_id)
+        if openai_response:
+            post_to_telegram(openai_response)
+        else:
+            logger.info('Получен пустой ответ от OpenAI')
+
+
+schedule.every(POSTING_INTERVAL * 60).minutes.do(perform_task)
+
+
+if __name__ == '__main__':
+    logger.info('Скрипт запущен')
+    client = OpenAIClient(
+        api_key=OPENAI_API_KEY,
+        assistant_id=OPENAI_ASSIST_ID,
+	proxy_url=PROXY_URL
+    )
+    thread_id = client.start_threading()
+    perform_task()
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
