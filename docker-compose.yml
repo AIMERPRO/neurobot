@@ -38,7 +38,7 @@ services:
     image: nginx:latest
 
     build:
-      context: /nginx
+      context: nginx/
       dockerfile: nginx/Dockerfile
 
     volumes:
