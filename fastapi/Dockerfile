@@ -17,6 +17,4 @@ RUN pip install --no-cache-dir -r /app/requirements.txt --verbose
 COPY alembic.ini /app/alembic.ini
 COPY alembic /app/alembic
 
-#CMD ["wait-for-it.sh", "db", "--", "uvicorn", "web:app", "--host", "0.0.0.0", "--port", "8000"]
-
 CMD ["uvicorn", "web:app", "--host", "0.0.0.0", "--port", "8000"]

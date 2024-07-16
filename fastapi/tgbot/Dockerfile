@@ -1,14 +1,14 @@
 FROM python:3.9-slim
 
-WORKDIR /app
+WORKDIR /bot
 
 COPY tgbot/requirements.txt .
-COPY database tgbot/database
-COPY config.py tgbot/config.py
-COPY .env tgbot/.env
+COPY database tgbot/app/database
+COPY config.py tgbot/app/config.py
+COPY .env tgbot/app/.env
 
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "tgbot/aiogram_bot.py"]
+CMD ["python", "tgbot/app/main.py"]

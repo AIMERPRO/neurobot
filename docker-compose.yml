@@ -7,7 +7,7 @@ services:
       dockerfile: tgbot/Dockerfile
     container_name: tgbot_app
     restart: on-failure
-    command: ["python", "tgbot/aiogram_bot.py"]
+    command: ["python", "tgbot/app/main.py"]
 
   fastapi:
     build: fastapi

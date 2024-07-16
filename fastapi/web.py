@@ -1,3 +1,4 @@
+import datetime
 from typing import List
 
 from fastapi import FastAPI
@@ -31,7 +32,43 @@ async def startup_event():
 
 @app.get("/transaction/approve/")
 async def approve_transaction(transaction_id: str, operation_id: str, amount: float, chat_id: str):
-    return {"transaction_id": transaction_id, "operation_id": operation_id, "amount": amount, "chat_id": chat_id}
+    # days_of_subscription = 30
+
+    # if 300 <= amount <= 320:
+    #     days_of_subscription = 1
+    #
+    # elif 1000 <= amount <= 1020:
+    #     days_of_subscription = 7
+    #
+    # elif 3000 <= amount <= 3020:
+    #     days_of_subscription = 30
+
+    if amount == 1:
+        days_of_subscription = 1
+
+    elif amount == 2:
+        days_of_subscription = 7
+
+    elif amount == 3:
+        days_of_subscription = 30
+
+    if days_of_subscription:
+        transaction = Transaction(id=transaction_id, operation_id=operation_id, amount=amount, chat_id=chat_id,
+                                  days_of_subscription=days_of_subscription)
+        await transaction.save()
+
+        payment = Payment.query.where(Payment.chat_id == chat_id).gino.all()[-1]
+        payment.update(paid=True).apply()
+
+        if payment.paid:
+            user = await User.query.where(User.chat_id == chat_id).gino.first()
+            subscribe_end = datetime.datetime.now() + datetime.timedelta(days=days_of_subscription)
+            user.update(subscribe_end=subscribe_end).apply()
+
+        return transaction.to_dict()
+
+    else:
+        return {'status': 'Invalid amount'}
 
 
 @app.get("/users/", response_model=List[UserListSchema])

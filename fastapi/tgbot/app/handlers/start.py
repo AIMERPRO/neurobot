@@ -1,29 +1,29 @@
-import asyncio
-import logging
-import os
 import uuid
 
-from aiogram import Bot, Dispatcher, types, Router
-from aiogram.dispatcher import router
-from aiogram.filters import Command
+from aiogram import Router
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
-from aiogram.fsm.storage.memory import MemoryStorage
-from dotenv import load_dotenv
+from aiogram.filters import CommandStart, Command
 
-from database.connect import connect_db, disconnect_db
-from database.models import User, Transaction, Payment, Transaction
+from dependency_injector.wiring import inject, Provide
+
+from core.container import Container
+from services.openai_service import OpenAIClient
+
+from database.models import User, Payment
+
+from core.p_decorator import paycheck
+
+from loguru import logger
+
+start_router = Router()
 
 
-load_dotenv()
 
-logging.basicConfig(level=logging.INFO)
-
-
-router = Router()
-
-
-@router.message(Command("start"))
-async def start_handler(msg: Message):
+@start_router.message(Command("start"))
+@inject
+async def start_handler(msg: Message,     state: FSMContext,
+    openai_client: OpenAIClient = Provide[Container.openai_client],):
     chat_id = msg.from_user.id
     user = await User.query.where(User.chat_id == str(chat_id)).gino.first()
     if user:
@@ -31,10 +31,10 @@ async def start_handler(msg: Message):
     else:
         await User.create(name=msg.from_user.full_name, username=msg.from_user.username, chat_id=str(chat_id))
 
-    await msg.answer("Оплати подписку /pay")
+    await msg.answer("Оплатите подписку /pay")
 
 
-@router.message(Command("pay"))
+@start_router.message(Command("pay"))
 async def pay_handler(msg: Message):
     markup = InlineKeyboardMarkup(inline_keyboard=[
         [
@@ -46,7 +46,7 @@ async def pay_handler(msg: Message):
     await msg.answer("Выберите срок подписки: ", reply_markup=markup)
 
 
-@router.callback_query(lambda c: c.data == '1_day')
+@start_router.callback_query(lambda c: c.data == '1_day')
 async def pay_handler(callback: CallbackQuery):
     user = await User.query.where(User.chat_id == str(callback.from_user.id)).gino.first()
 
@@ -70,7 +70,7 @@ async def pay_handler(callback: CallbackQuery):
     await callback.message.answer(f"Оплатите подписку по <a href='{link_for_pay}'> ССЫЛКЕ </a>", parse_mode="HTML")
 
 
-@router.callback_query(lambda c: c.data == '7_days')
+@start_router.callback_query(lambda c: c.data == '7_days')
 async def pay_handler(callback: CallbackQuery):
     user = await User.query.where(User.chat_id == str(callback.from_user.id)).gino.first()
 
@@ -94,7 +94,7 @@ async def pay_handler(callback: CallbackQuery):
     await callback.message.answer(f"Оплатите подписку по <a href='{link_for_pay}'> ССЫЛКЕ </a>", parse_mode="HTML")
 
 
-@router.callback_query(lambda c: c.data == '1_month')
+@start_router.callback_query(lambda c: c.data == '1_month')
 async def pay_handler(callback: CallbackQuery):
     user = await User.query.where(User.chat_id == str(callback.from_user.id)).gino.first()
 
@@ -118,24 +118,3 @@ async def pay_handler(callback: CallbackQuery):
     await callback.message.answer(f"Оплатите подписку по <a href='{link_for_pay}'> ССЫЛКЕ </a>", parse_mode="HTML")
 
 
-async def on_startup():
-    await connect_db()
-
-
-async def on_shutdown():
-    await disconnect_db()
-
-
-async def main():
-    await on_startup()  # Подключаемся к базе данных
-    bot = Bot(token=os.getenv("BOT_TOKEN"))
-    dp = Dispatcher(storage=MemoryStorage())
-    dp.include_router(router)
-    await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
-    await on_shutdown()  # Отключаемся от базы данных
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    asyncio.run(main())

@@ -27,6 +27,7 @@ class Payment(db.Model):
     chat_id = db.Column(db.String)
     days_of_subscription = db.Column(db.Integer)
     date = db.Column(db.DateTime, default=datetime.now())
+    paid = db.Column(db.Boolean, default=False)
 
 
 class Transaction(db.Model):
