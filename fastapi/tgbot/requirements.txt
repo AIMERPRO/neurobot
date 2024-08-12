@@ -1,4 +1,4 @@
-annotated-types==0.7.0
+annotated-types
 python-dotenv==1.0.1
 gino==1.0.1
 aiogram==3.8.0
