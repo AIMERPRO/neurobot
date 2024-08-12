@@ -9,10 +9,10 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --upgrade pip setuptools wheel
+RUN pip3 install --upgrade pip setuptools wheel
 
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r /app/requirements.txt --verbose
+RUN pip3 install --upgrade pip
+RUN pip3 install --no-cache-dir -r /app/requirements.txt --verbose
 
 COPY alembic.ini /app/alembic.ini
 COPY alembic /app/alembic
