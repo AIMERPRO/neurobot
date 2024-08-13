@@ -7,6 +7,7 @@ COPY database tgbot/app/database
 COPY config.py tgbot/app/config.py
 COPY .env tgbot/app/.env
 
+RUN python -m pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
