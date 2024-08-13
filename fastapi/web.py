@@ -79,6 +79,10 @@ async def approve_transaction(MNT_TRANSACTION_ID: str, MNT_OPERATION_ID: str, MN
                 data={'chat_id': payment.chat_id, 'text': f'Подписка добавлена. Действует до: {datetime.datetime.strftime(subscribe_end, "%d-%m-%Y, %H-%S")}'}
             ).json()
 
+            string_for_hash = '200' + '19684417' + MNT_TRANSACTION_ID + '12345'
+
+            MNT_SIGNATURE = hashlib.md5(string_for_hash.encode('utf-8')).hexdigest()
+
             data = f"""
               <?xml version="1.0" encoding="UTF-8" ?>
                 <MNT_RESPONSE>
@@ -98,6 +102,10 @@ async def approve_transaction(MNT_TRANSACTION_ID: str, MNT_OPERATION_ID: str, MN
             return Response(content=data, media_type="application/xml")
 
     else:
+        string_for_hash = '500' + '19684417' + MNT_TRANSACTION_ID + '12345'
+
+        MNT_SIGNATURE = hashlib.md5(string_for_hash.encode('utf-8')).hexdigest()
+
         data = f"""
           <?xml version="1.0" encoding="UTF-8" ?>
             <MNT_RESPONSE>
