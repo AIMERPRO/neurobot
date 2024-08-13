@@ -109,7 +109,7 @@ async def pay_handler(callback: CallbackQuery):
     )
 
     link_for_pay = (f"https://payanyway.ru/assistant.htm?MNT_ID=19684417&MNT_AMOUNT=3"
-                    f"&MNT_TRANSACTION_ID=sub_{payment.id}_{order_uuid}"
+                    f"&MNT_TRANSACTION_ID=sub_{order_uuid}"
                     f"&MNT_CURRENCY_CODE=RUB&MNT_TEST_MODE=0&MNT_SUBSCRIBER_ID={callback.from_user.id}")
 
     await payment.update(transaction_id=f"sub_{payment.id}_{order_uuid}").apply()
