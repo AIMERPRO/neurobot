@@ -74,13 +74,13 @@ async def approve_transaction(MNT_TRANSACTION_ID: str, MNT_OPERATION_ID: str, MN
 
             response = requests.post(
                 url='https://api.telegram.org/bot{0}/{1}'.format(token, method),
-                data={'chat_id': 12345, 'text': 'hello friend'}
+                data={'chat_id': payment.chat_id, 'text': f'Subscription added. Subscribe to: {datetime.datetime.strftime(subscribe_end, "%d-%m-%Y")}'}
             ).json()
 
-        return transaction.to_dict()
+        return 'SUCCESS'
 
     else:
-        return {'status': 'Invalid amount'}
+        return 'FAIL'
 
 
 @app.get("/users/", response_model=List[UserListSchema])
