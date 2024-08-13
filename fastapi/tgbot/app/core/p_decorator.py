@@ -13,7 +13,7 @@ def paycheck(func):
         user = await User.query.where(User.chat_id == str(msg.from_user.id)).gino.first()
 
         if user.subscribe_end:
-            if datetime.datetime.now() <= user.subscribe_end:
+            if datetime.datetime.now() < user.subscribe_end:
                 original_result = await func(msg, *args, **kwargs)
 
                 return original_result

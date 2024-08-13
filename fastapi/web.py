@@ -4,8 +4,9 @@ from typing import List
 
 import requests
 from dotenv import load_dotenv
+import hashlib
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -74,13 +75,45 @@ async def approve_transaction(MNT_TRANSACTION_ID: str, MNT_OPERATION_ID: str, MN
 
             response = requests.post(
                 url='https://api.telegram.org/bot{0}/{1}'.format(token, method),
-                data={'chat_id': payment.chat_id, 'text': f'Subscription added. Subscribe to: {datetime.datetime.strftime(subscribe_end, "%d-%m-%Y")}'}
+                data={'chat_id': payment.chat_id, 'text': f'Подписка добавлена. Действует до: {datetime.datetime.strftime(subscribe_end, "%d-%m-%Y, %H-%S")}'}
             ).json()
 
-        return 'SUCCESS'
+            string_for_hash = '206' + '19684417' + '12345'
+
+            MNT_SIGNATURE = hashlib.md5(string_for_hash.encode('utf-8')).hexdigest()
+
+            data = """
+            <?xml version="1.0" encoding="UTF-8"?>
+                <MNT_RESPONSE>
+                 <MNT_ID>{MNT_ID}</MNT_ID>
+                 <MNT_RESULT_CODE>{MNT_RESULT_CODE}</MNT_RESULT_CODE>
+                 <MNT_DESCRIPTION>{MNT_DESCRIPTION}</MNT_DESCRIPTION>
+                 <MNT_AMOUNT>{MNT_AMOUNT}</MNT_AMOUNT>
+                 <MNT_SIGNATURE>{MNT_SIGNATURE}</MNT_SIGNATURE>
+                """.format(MNT_ID='19684417', MNT_RESULT_CODE='206',
+                           MNT_DESCRIPTION=f'Payment for {days_of_subscription} days of subscription',
+                           MNT_AMOUNT=str(MNT_AMOUNT), MNT_SIGNATURE=MNT_SIGNATURE)
+
+            return Response(content=data, media_type="application/xml")
 
     else:
-        return 'FAIL'
+        string_for_hash = '500' + '19684417' + '12345'
+
+        MNT_SIGNATURE = hashlib.md5(string_for_hash.encode('utf-8')).hexdigest()
+
+        data = """
+        <?xml version="1.0" encoding="UTF-8"?>
+            <MNT_RESPONSE>
+             <MNT_ID>{MNT_ID}</MNT_ID>
+             <MNT_RESULT_CODE>{MNT_RESULT_CODE}</MNT_RESULT_CODE>
+             <MNT_DESCRIPTION>{MNT_DESCRIPTION}</MNT_DESCRIPTION>
+             <MNT_AMOUNT>{MNT_AMOUNT}</MNT_AMOUNT>
+             <MNT_SIGNATURE>{MNT_SIGNATURE}</MNT_SIGNATURE>
+            """.format(MNT_ID='19684417', MNT_RESULT_CODE='500',
+                       MNT_DESCRIPTION=f'Payment for {days_of_subscription} days of subscription',
+                       MNT_AMOUNT=str(MNT_AMOUNT), MNT_SIGNATURE=MNT_SIGNATURE)
+
+        return Response(content=data, media_type="application/xml")
 
 
 @app.get("/users/", response_model=List[UserListSchema])

@@ -2,6 +2,7 @@ from aiogram import Router
 
 from .start import start_router
 from .gpt_response import gpt_response
+from .subscription import subs_router
 
 
 def get_all_routers() -> Router:
@@ -10,5 +11,6 @@ def get_all_routers() -> Router:
     router = Router()
     router.include_router(start_router)
     router.include_router(gpt_response)
+    router.include_router(subs_router)
 
     return router
