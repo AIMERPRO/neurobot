@@ -1,5 +1,9 @@
 import datetime
+import os
 from typing import List
+
+import requests
+from dotenv import load_dotenv
 
 from fastapi import FastAPI
 
@@ -32,6 +36,7 @@ async def startup_event():
 
 @app.get("/transaction/approve/")
 async def approve_transaction(MNT_TRANSACTION_ID: str, MNT_OPERATION_ID: str, MNT_AMOUNT: float, MNT_SUBSCRIBER_ID: str):
+    load_dotenv()
     # days_of_subscription = 30
 
     # if 300 <= amount <= 320:
@@ -63,6 +68,14 @@ async def approve_transaction(MNT_TRANSACTION_ID: str, MNT_OPERATION_ID: str, MN
             user = await User.query.where(User.chat_id == MNT_SUBSCRIBER_ID).gino.first()
             subscribe_end = datetime.datetime.now() + datetime.timedelta(days=days_of_subscription)
             await user.update(subscribe_end=subscribe_end).apply()
+
+            token = os.getenv('BOT_TOKEN')
+            method = 'sendMessage'
+
+            response = requests.post(
+                url='https://api.telegram.org/bot{0}/{1}'.format(token, method),
+                data={'chat_id': 12345, 'text': 'hello friend'}
+            ).json()
 
         return transaction.to_dict()
 
