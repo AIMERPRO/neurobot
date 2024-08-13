@@ -84,7 +84,7 @@ async def pay_handler(callback: CallbackQuery):
         days_of_subscription=7
     )
 
-    link_for_pay = (f"https://payanyway.ru/assistant.htm?MNT_ID=19684417&MNT_AMOUNT=1"
+    link_for_pay = (f"https://payanyway.ru/assistant.htm?MNT_ID=19684417&MNT_AMOUNT=2"
                     f"&MNT_TRANSACTION_ID=sub_{payment.id}_{order_uuid}"
                     f"&MNT_CURRENCY_CODE=RUB&MNT_TEST_MODE=0&MNT_SUBSCRIBER_ID={callback.from_user.id}")
 
@@ -108,7 +108,7 @@ async def pay_handler(callback: CallbackQuery):
         days_of_subscription=30
     )
 
-    link_for_pay = (f"https://payanyway.ru/assistant.htm?MNT_ID=19684417&MNT_AMOUNT=1"
+    link_for_pay = (f"https://payanyway.ru/assistant.htm?MNT_ID=19684417&MNT_AMOUNT=3"
                     f"&MNT_TRANSACTION_ID=sub_{payment.id}_{order_uuid}"
                     f"&MNT_CURRENCY_CODE=RUB&MNT_TEST_MODE=0&MNT_SUBSCRIBER_ID={callback.from_user.id}")
 

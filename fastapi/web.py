@@ -31,7 +31,7 @@ async def startup_event():
 
 
 @app.get("/transaction/approve/")
-async def approve_transaction(transaction_id: str, operation_id: str, amount: float, chat_id: str):
+async def approve_transaction(MNT_TRANSACTION_ID: str, MNT_OPERATION_ID: str, MNT_AMOUNT: float, MNT_SUBSCRIBER_ID: str):
     # days_of_subscription = 30
 
     # if 300 <= amount <= 320:
@@ -43,25 +43,25 @@ async def approve_transaction(transaction_id: str, operation_id: str, amount: fl
     # elif 3000 <= amount <= 3020:
     #     days_of_subscription = 30
 
-    if amount == 1:
+    if MNT_AMOUNT == 1:
         days_of_subscription = 1
 
-    elif amount == 2:
+    elif MNT_AMOUNT == 2:
         days_of_subscription = 7
 
-    elif amount == 3:
+    elif MNT_AMOUNT == 3:
         days_of_subscription = 30
 
     if days_of_subscription:
-        transaction = Transaction(id=transaction_id, operation_id=operation_id, amount=amount, chat_id=chat_id,
+        transaction = Transaction(id=MNT_TRANSACTION_ID, operation_id=MNT_OPERATION_ID, amount=MNT_AMOUNT, chat_id=MNT_SUBSCRIBER_ID,
                                   days_of_subscription=days_of_subscription)
         await transaction.save()
 
-        payment = Payment.query.where(Payment.chat_id == chat_id).gino.all()[-1]
+        payment = Payment.query.where(Payment.chat_id == MNT_SUBSCRIBER_ID).gino.all()[-1]
         payment.update(paid=True).apply()
 
         if payment.paid:
-            user = await User.query.where(User.chat_id == chat_id).gino.first()
+            user = await User.query.where(User.chat_id == MNT_SUBSCRIBER_ID).gino.first()
             subscribe_end = datetime.datetime.now() + datetime.timedelta(days=days_of_subscription)
             user.update(subscribe_end=subscribe_end).apply()
 
