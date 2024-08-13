@@ -56,13 +56,13 @@ async def approve_transaction(MNT_TRANSACTION_ID: str, MNT_OPERATION_ID: str, MN
         transaction = await Transaction.create(transaction_id=MNT_TRANSACTION_ID, operation_id=MNT_OPERATION_ID, amount=MNT_AMOUNT, chat_id=MNT_SUBSCRIBER_ID,
                                   days_of_subscription=days_of_subscription)
 
-        payment = Payment.query.where(Payment.chat_id == MNT_SUBSCRIBER_ID).gino.all()[-1]
-        payment.update(paid=True).apply()
+        payment = await Payment.query.where(Payment.chat_id == MNT_SUBSCRIBER_ID).gino.all()[-1]
+        await payment.update(paid=True).apply()
 
         if payment.paid:
             user = await User.query.where(User.chat_id == MNT_SUBSCRIBER_ID).gino.first()
             subscribe_end = datetime.datetime.now() + datetime.timedelta(days=days_of_subscription)
-            user.update(subscribe_end=subscribe_end).apply()
+            await user.update(subscribe_end=subscribe_end).apply()
 
         return transaction.to_dict()
 
