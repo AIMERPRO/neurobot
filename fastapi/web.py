@@ -36,7 +36,8 @@ async def startup_event():
 
 
 @app.get("/transaction/approve/")
-async def approve_transaction(MNT_TRANSACTION_ID: str, MNT_OPERATION_ID: str, MNT_AMOUNT: float, MNT_SUBSCRIBER_ID: str):
+async def approve_transaction(MNT_TRANSACTION_ID: str, MNT_OPERATION_ID: str, MNT_AMOUNT: float, MNT_SUBSCRIBER_ID: str,
+                              MNT_SIGNATURE: str):
     load_dotenv()
     # days_of_subscription = 30
 
@@ -78,40 +79,40 @@ async def approve_transaction(MNT_TRANSACTION_ID: str, MNT_OPERATION_ID: str, MN
                 data={'chat_id': payment.chat_id, 'text': f'Подписка добавлена. Действует до: {datetime.datetime.strftime(subscribe_end, "%d-%m-%Y, %H-%S")}'}
             ).json()
 
-            string_for_hash = '206' + '19684417' + '12345'
-
-            MNT_SIGNATURE = hashlib.md5(string_for_hash.encode('utf-8')).hexdigest()
-
-            data = """
-            <?xml version="1.0" encoding="UTF-8"?>
+            data = f"""
+              <?xml version="1.0" encoding="UTF-8" ?>
                 <MNT_RESPONSE>
-                 <MNT_ID>{MNT_ID}</MNT_ID>
-                 <MNT_RESULT_CODE>{MNT_RESULT_CODE}</MNT_RESULT_CODE>
-                 <MNT_DESCRIPTION>{MNT_DESCRIPTION}</MNT_DESCRIPTION>
-                 <MNT_AMOUNT>{MNT_AMOUNT}</MNT_AMOUNT>
-                 <MNT_SIGNATURE>{MNT_SIGNATURE}</MNT_SIGNATURE>
-                """.format(MNT_ID='19684417', MNT_RESULT_CODE='206',
-                           MNT_DESCRIPTION=f'Payment for {days_of_subscription} days of subscription',
-                           MNT_AMOUNT=str(MNT_AMOUNT), MNT_SIGNATURE=MNT_SIGNATURE)
+                <MNT_ID>19684417</MNT_ID>
+                <MNT_TRANSACTION_ID>{MNT_TRANSACTION_ID}</MNT_TRANSACTION_ID>
+                <MNT_RESULT_CODE>200</MNT_RESULT_CODE>
+                <MNT_SIGNATURE>{MNT_SIGNATURE}</MNT_SIGNATURE>
+                <MNT_ATTRIBUTES>
+                <ATTRIBUTE>
+                <KEY>INVENTORY</KEY>
+                <VALUE>[{"name": "Subscription", "price": "{MNT_AMOUNT}", "vatTag": "1105"}]</VALUE>
+                </ATTRIBUTE>
+                </MNT_ATTRIBUTES>
+                </MNT_RESPONSE>
+                """
 
             return Response(content=data, media_type="application/xml")
 
     else:
-        string_for_hash = '500' + '19684417' + '12345'
-
-        MNT_SIGNATURE = hashlib.md5(string_for_hash.encode('utf-8')).hexdigest()
-
-        data = """
-        <?xml version="1.0" encoding="UTF-8"?>
+        data = f"""
+          <?xml version="1.0" encoding="UTF-8" ?>
             <MNT_RESPONSE>
-             <MNT_ID>{MNT_ID}</MNT_ID>
-             <MNT_RESULT_CODE>{MNT_RESULT_CODE}</MNT_RESULT_CODE>
-             <MNT_DESCRIPTION>{MNT_DESCRIPTION}</MNT_DESCRIPTION>
-             <MNT_AMOUNT>{MNT_AMOUNT}</MNT_AMOUNT>
-             <MNT_SIGNATURE>{MNT_SIGNATURE}</MNT_SIGNATURE>
-            """.format(MNT_ID='19684417', MNT_RESULT_CODE='500',
-                       MNT_DESCRIPTION=f'Payment for {days_of_subscription} days of subscription',
-                       MNT_AMOUNT=str(MNT_AMOUNT), MNT_SIGNATURE=MNT_SIGNATURE)
+            <MNT_ID>19684417</MNT_ID>
+            <MNT_TRANSACTION_ID>{MNT_TRANSACTION_ID}</MNT_TRANSACTION_ID>
+            <MNT_RESULT_CODE>200</MNT_RESULT_CODE>
+            <MNT_SIGNATURE>{MNT_SIGNATURE}</MNT_SIGNATURE>
+            <MNT_ATTRIBUTES>
+            <ATTRIBUTE>
+            <KEY>INVENTORY</KEY>
+            <VALUE>[{"name": "Subscription", "price": "{MNT_AMOUNT}", "vatTag": "1105"}]</VALUE>
+            </ATTRIBUTE>
+            </MNT_ATTRIBUTES>
+            </MNT_RESPONSE>
+            """
 
         return Response(content=data, media_type="application/xml")
 
