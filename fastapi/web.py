@@ -53,7 +53,7 @@ async def approve_transaction(MNT_TRANSACTION_ID: str, MNT_OPERATION_ID: str, MN
         days_of_subscription = 30
 
     if days_of_subscription:
-        transaction = await Transaction.create(id=MNT_TRANSACTION_ID, operation_id=MNT_OPERATION_ID, amount=MNT_AMOUNT, chat_id=MNT_SUBSCRIBER_ID,
+        transaction = await Transaction.create(transaction_id=MNT_TRANSACTION_ID, operation_id=MNT_OPERATION_ID, amount=MNT_AMOUNT, chat_id=MNT_SUBSCRIBER_ID,
                                   days_of_subscription=days_of_subscription)
 
         payment = Payment.query.where(Payment.chat_id == MNT_SUBSCRIBER_ID).gino.all()[-1]
