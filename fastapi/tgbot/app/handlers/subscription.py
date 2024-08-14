@@ -37,7 +37,7 @@ async def pay_handler(msg: Message):
         await msg.answer("Выберите срок подписки: ", reply_markup=markup)
 
     else:
-        await msg.answer(f'У вас уже есть подписка до: {datetime.datetime.strftime(user.subscribe_end, "%d-%m-%Y, %H-%S")}')
+        await msg.answer(f'У вас уже есть подписка до: {datetime.datetime.strftime(user.subscribe_end, "%d-%m-%Y, %H-%M")}')
 
 
 @subs_router.callback_query(lambda c: c.data == '1_day')

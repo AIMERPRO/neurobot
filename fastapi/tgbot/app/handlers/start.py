@@ -30,9 +30,14 @@ async def start_handler(msg: Message):
     else:
         await User.create(name=msg.from_user.full_name, username=msg.from_user.username, chat_id=str(chat_id))
 
-    if user.subscribe_end <= datetime.datetime.now():
-        await msg.answer("Оплатите подписку /pay")
+    if user.subscribe_end:
+        if user.subscribe_end <= datetime.datetime.now():
+            await msg.answer("Оплатите подписку /pay")
+
+        else:
+            await msg.answer(
+                f"Ваша подписка действительна до: {datetime.datetime.strftime(user.subscribe_end, '%d-%m-%Y, %H-%M')}")
 
     else:
-        await msg.answer(f"Ваша подписка действительна до: {datetime.datetime.strftime(user.subscribe_end, '%d-%m-%Y, %H-%S')}")
+        await msg.answer("Оплатите подписку /pay")
 
