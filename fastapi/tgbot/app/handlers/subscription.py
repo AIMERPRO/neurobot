@@ -25,8 +25,22 @@ subs_router = Router()
 async def pay_handler(msg: Message):
     user = await User.query.where(User.chat_id == str(msg.from_user.id)).gino.first()
 
-    if user.subscribe_end <= datetime.datetime.now():
+    if user.subscribe_end:
+        if user.subscribe_end <= datetime.datetime.now():
 
+            markup = InlineKeyboardMarkup(inline_keyboard=[
+                [
+                    InlineKeyboardButton(text="1 день (300 руб)", callback_data="1_day"),
+                    InlineKeyboardButton(text="7 дней (1000 руб)", callback_data="7_days"),
+                    InlineKeyboardButton(text="1 месяц (3000 руб)", callback_data="1_month"),
+                ]
+            ])
+            await msg.answer("Выберите срок подписки: ", reply_markup=markup)
+
+        else:
+            await msg.answer(f'У вас уже есть подписка до: {datetime.datetime.strftime(user.subscribe_end, "%d-%m-%Y, %H-%M")}')
+
+    else:
         markup = InlineKeyboardMarkup(inline_keyboard=[
             [
                 InlineKeyboardButton(text="1 день (300 руб)", callback_data="1_day"),
@@ -35,9 +49,6 @@ async def pay_handler(msg: Message):
             ]
         ])
         await msg.answer("Выберите срок подписки: ", reply_markup=markup)
-
-    else:
-        await msg.answer(f'У вас уже есть подписка до: {datetime.datetime.strftime(user.subscribe_end, "%d-%m-%Y, %H-%M")}')
 
 
 @subs_router.callback_query(lambda c: c.data == '1_day')
