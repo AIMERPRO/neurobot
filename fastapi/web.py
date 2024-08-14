@@ -79,50 +79,10 @@ async def approve_transaction(MNT_TRANSACTION_ID: str, MNT_OPERATION_ID: str, MN
                 data={'chat_id': payment.chat_id, 'text': f'Подписка добавлена. Действует до: {datetime.datetime.strftime(subscribe_end, "%d-%m-%Y, %H-%S")}'}
             ).json()
 
-            string_for_hash = '200' + '19684417' + MNT_TRANSACTION_ID + '12345'
-
-            MNT_SIGNATURE = hashlib.md5(string_for_hash.encode('utf-8')).hexdigest()
-
-            data = f"""
-              <?xml version="1.0" encoding="UTF-8" ?>
-                <MNT_RESPONSE>
-                <MNT_ID>19684417</MNT_ID>
-                <MNT_TRANSACTION_ID>{MNT_TRANSACTION_ID}</MNT_TRANSACTION_ID>
-                <MNT_RESULT_CODE>200</MNT_RESULT_CODE>
-                <MNT_SIGNATURE>{MNT_SIGNATURE}</MNT_SIGNATURE>
-                <MNT_ATTRIBUTES>
-                <ATTRIBUTE>
-                <KEY>INVENTORY</KEY>
-                <VALUE>[{"name": "Subscription", "price": "{MNT_AMOUNT}", "vatTag": "1105"}]</VALUE>
-                </ATTRIBUTE>
-                </MNT_ATTRIBUTES>
-                </MNT_RESPONSE>
-                """
-
-            return Response(content=data, media_type="application/xml")
+            return Response("SUCCESS")
 
     else:
-        string_for_hash = '500' + '19684417' + MNT_TRANSACTION_ID + '12345'
-
-        MNT_SIGNATURE = hashlib.md5(string_for_hash.encode('utf-8')).hexdigest()
-
-        data = f"""
-          <?xml version="1.0" encoding="UTF-8" ?>
-            <MNT_RESPONSE>
-            <MNT_ID>19684417</MNT_ID>
-            <MNT_TRANSACTION_ID>{MNT_TRANSACTION_ID}</MNT_TRANSACTION_ID>
-            <MNT_RESULT_CODE>200</MNT_RESULT_CODE>
-            <MNT_SIGNATURE>{MNT_SIGNATURE}</MNT_SIGNATURE>
-            <MNT_ATTRIBUTES>
-            <ATTRIBUTE>
-            <KEY>INVENTORY</KEY>
-            <VALUE>[{"name": "Subscription", "price": "{MNT_AMOUNT}", "vatTag": "1105"}]</VALUE>
-            </ATTRIBUTE>
-            </MNT_ATTRIBUTES>
-            </MNT_RESPONSE>
-            """
-
-        return Response(content=data, media_type="application/xml")
+        return Response("FAIL")
 
 
 @app.get("/users/", response_model=List[UserListSchema])
