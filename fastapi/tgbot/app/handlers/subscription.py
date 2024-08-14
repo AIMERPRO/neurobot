@@ -20,7 +20,6 @@ from loguru import logger
 subs_router = Router()
 
 
-
 @subs_router.message(Command("pay"))
 async def pay_handler(msg: Message):
     user = await User.query.where(User.chat_id == str(msg.from_user.id)).gino.first()

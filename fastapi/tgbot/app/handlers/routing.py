@@ -10,7 +10,7 @@ def get_all_routers() -> Router:
 
     router = Router()
     router.include_router(start_router)
-    router.include_router(gpt_response)
     router.include_router(subs_router)
+    router.include_router(gpt_response)
 
     return router
