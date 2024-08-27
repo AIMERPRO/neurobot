@@ -33,6 +33,12 @@ class Settings(BaseSettings):
         title="Секретный ключ", default_factory=lambda: secrets.token_hex(16)
     )
 
+    # subs price
+
+    oneday_subs: int = Field(title="Подписка на 1 день")
+    sevenday_subs: int = Field(title="Подписка на 7 дней")
+    month_subs: int = Field(title="Подписка на месяц")
+
     # openai
     assistant_id: str = Field(title="ID асистента")
     openai_api_key: str = Field(title="Ключ OpenAI")
