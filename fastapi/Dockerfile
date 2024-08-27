@@ -18,3 +18,4 @@ COPY alembic.ini /app/alembic.ini
 COPY alembic /app/alembic
 
 CMD ["uvicorn", "web:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["alembic", "upgrade", "head"]
