@@ -39,16 +39,6 @@ async def startup_event():
 async def approve_transaction(MNT_TRANSACTION_ID: str, MNT_OPERATION_ID: str, MNT_AMOUNT: float, MNT_SUBSCRIBER_ID: str,
                               MNT_SIGNATURE: str):
     load_dotenv()
-    # days_of_subscription = 30
-
-    # if 300 <= amount <= 320:
-    #     days_of_subscription = 1
-    #
-    # elif 1000 <= amount <= 1020:
-    #     days_of_subscription = 7
-    #
-    # elif 3000 <= amount <= 3020:
-    #     days_of_subscription = 30
 
     if MNT_AMOUNT == 1:
         days_of_subscription = 1
